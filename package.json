@@ -1,0 +1,11 @@
+{
+  "name": "solar-spa",
+  "version": "1.0.0",
+  "description": "NREL Solar Position Algorithm (SPA) in WebAssembly",
+  "main": "solar-spa.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "Ali Camarata",
+  "license": "MIT"
+}
