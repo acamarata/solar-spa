@@ -1,5 +1,4 @@
 // test.js
-// Import the 'solar-spa' module
 const spa = require('./solar-spa.js');
 
 // Define input parameters for a specific date, time, and location

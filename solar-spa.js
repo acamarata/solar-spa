@@ -3,9 +3,8 @@ const path = require('path');
 const spaModule = require('./spa.js');
 
 // Set the wasm file path
-spaModule.locateFile = (filename) => {
-  return path.join(__dirname, filename);
-};
+spaModule.wasmBinaryFile = path.join(__dirname, 'spa.wasm');
+
 module.exports = function spa(
   date,
   latitude,
