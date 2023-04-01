@@ -1,5 +1,11 @@
+// solar-spa.js
+const path = require('path');
 const spaModule = require('./spa.js');
 
+// Set the wasm file path
+spaModule.locateFile = (filename) => {
+  return path.join(__dirname, filename);
+};
 module.exports = function spa(
   date,
   latitude,
