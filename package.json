@@ -1,6 +1,6 @@
 {
   "name": "solar-spa",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "NREL Solar Position Algorithm (SPA) in WebAssembly",
   "main": "solar-spa.js",
   "types": "index.d.ts",

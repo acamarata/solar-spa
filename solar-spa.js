@@ -1,9 +1,12 @@
 // solar-spa.js
-const path = require('path');
 const spaModule = require('./spa.js');
+const spaBase64 = require('./spa_base64.js'); // Import the Base64-encoded WASM
 
-// Set the wasm file path
-spaModule.wasmBinaryFile = path.join(__dirname, 'spa.wasm');
+// Convert the Base64-encoded string back to a Uint8Array for use with WebAssembly
+const wasmBinary = new Uint8Array(Buffer.from(spaBase64, 'base64'));
+
+// Use the wasmBinary directly instead of loading it from the file system
+spaModule.wasmBinary = wasmBinary;
 
 module.exports = function spa(
   date,
