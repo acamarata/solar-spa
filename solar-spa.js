@@ -1,5 +1,10 @@
-// solar-spa.js
 const spaModule = require('./spa.js');
+
+let isRuntimeInitialized = false;
+
+spaModule.onRuntimeInitialized = function () {
+  isRuntimeInitialized = true;
+};
 
 module.exports = function spa(
   date,
@@ -10,53 +15,56 @@ module.exports = function spa(
   pressure = 1013.25,
   refraction = 0.5667
 ) {
-  return new Promise((resolve) => {
-    spaModule.onRuntimeInitialized = function () {
-      const spa_calculate = spaModule.cwrap(
-        'spa_calculate_wrapper',
-        'number',
-        [
-          'number', 'number', 'number', 'number', 'number',
-          'number', 'number', 'number', 'number', 'number',
-          'number', 'number', 'number', 'number', 'number'
-        ]
-      );
+  return new Promise((resolve, reject) => {
+    if (!isRuntimeInitialized) {
+      reject(new Error('Emscripten runtime is not initialized.'));
+      return;
+    }
 
-      const spa_free_result = spaModule.cwrap(
-        'spa_free_result',
-        null,
-        ['number']
-      );
+    const spa_calculate = spaModule.cwrap(
+      'spa_calculate_wrapper',
+      'number',
+      [
+        'number', 'number', 'number', 'number', 'number',
+        'number', 'number', 'number', 'number', 'number',
+        'number', 'number', 'number', 'number', 'number'
+      ]
+    );
 
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      const hour = date.getHours();
-      const minute = date.getMinutes();
-      const second = date.getSeconds();
-      const timezone = -date.getTimezoneOffset() / 60;
-      const slope = 0;
-      const azm_rotation = 0;
+    const spa_free_result = spaModule.cwrap(
+      'spa_free_result',
+      null,
+      ['number']
+    );
 
-      const resultPtr = spa_calculate(
-        year, month, day, hour, minute, second, timezone,
-        latitude, longitude, elevation, pressure, temperature,
-        slope, azm_rotation, refraction
-      );
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const second = date.getSeconds();
+    const timezone = -date.getTimezoneOffset() / 60;
+    const slope = 0;
+    const azm_rotation = 0;
 
-      const result = {
-        zenith: spaModule.getValue(resultPtr, 'double'),
-        azimuth: spaModule.getValue(resultPtr + 8, 'double'),
-        incidence: spaModule.getValue(resultPtr + 16, 'double'),
-        sunrise: spaModule.getValue(resultPtr + 24, 'double'),
-        sunset: spaModule.getValue(resultPtr + 32, 'double'),
-        solar_noon: spaModule.getValue(resultPtr + 40, 'double'),
-        sun_transit_alt: spaModule.getValue(resultPtr + 48, 'double'),
-      };
+    const resultPtr = spa_calculate(
+      year, month, day, hour, minute, second, timezone,
+      latitude, longitude, elevation, pressure, temperature,
+      slope, azm_rotation, refraction
+    );
 
-      spa_free_result(resultPtr);
-
-      resolve(result);
+    const result = {
+      zenith: spaModule.getValue(resultPtr, 'double'),
+      azimuth: spaModule.getValue(resultPtr + 8, 'double'),
+      incidence: spaModule.getValue(resultPtr + 16, 'double'),
+      sunrise: spaModule.getValue(resultPtr + 24, 'double'),
+      sunset: spaModule.getValue(resultPtr + 32, 'double'),
+      solar_noon: spaModule.getValue(resultPtr + 40, 'double'),
+      sun_transit_alt: spaModule.getValue(resultPtr + 48, 'double'),
     };
+
+    spa_free_result(resultPtr);
+
+    resolve(result);
   });
 };
