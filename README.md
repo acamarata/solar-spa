@@ -4,6 +4,8 @@ The solar-spa package provides a Node.js module for calculating solar position a
 
 The SPA calculates the solar zenith angle, azimuth angle, incidence angle, sunrise time, sunset time, solar noon time, and sun transit altitude for a given date, time, and location.
 
+This is a direct WASM conversion, which has some limitations and bugs in real-world usage, especially when used as an NPM package or within frameworks like Next.js. This repository will remain available for those who need or want it, but it will no longer be maintained by me in favor of the newer **[nrel-spa](https://github.com/acamarata/nrel-spa/)** package going forward.
+
 ## Installation
 
 To install the solar-spa package, use the following command:
