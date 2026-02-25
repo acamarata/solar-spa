@@ -1,16 +1,74 @@
 {
   "name": "solar-spa",
-  "version": "1.2.5",
-  "description": "NREL Solar Position Algorithm (SPA) in WebAssembly",
-  "main": "solar-spa.js",
-  "types": "index.d.ts",
-  "scripts": {
-    "test": "node test.js"
-  },
-  "author": "Ali Camarata",
+  "version": "2.0.0",
+  "description": "NREL Solar Position Algorithm (SPA) compiled to WebAssembly. High-performance solar position, sunrise, sunset, and solar noon calculations.",
+  "author": "Aric Camarata",
   "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist/",
+    "wasm/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build:wasm": "emcc src/spa.c src/spa_wrapper.c -O3 -flto --no-entry -sMODULARIZE=1 -sEXPORT_NAME=createSpaModule -sSINGLE_FILE=1 -sEXPORTED_FUNCTIONS='[\"_spa_calculate_wrapper\",\"_spa_free_result\",\"_malloc\",\"_free\"]' -sEXPORTED_RUNTIME_METHODS='[\"cwrap\",\"getValue\"]' -sALLOW_MEMORY_GROWTH=0 -sINITIAL_MEMORY=1048576 -sSTACK_SIZE=65536 -sENVIRONMENT='node,web,worker' -sNO_FILESYSTEM=1 -sASSERTIONS=0 -sDISABLE_EXCEPTION_CATCHING=1 -sWASM_BIGINT=0 -o wasm/spa-module.js",
+    "build:ts": "tsup",
+    "build": "pnpm run build:wasm && pnpm run build:ts",
+    "typecheck": "tsc --noEmit",
+    "pretest": "pnpm run build:ts",
+    "test": "node test.mjs && node test-cjs.cjs",
+    "validate": "node validate.mjs",
+    "prepublishOnly": "pnpm run build:ts"
+  },
+  "keywords": [
+    "solar",
+    "spa",
+    "nrel",
+    "wasm",
+    "webassembly",
+    "sunrise",
+    "sunset",
+    "solar-noon",
+    "zenith",
+    "azimuth",
+    "solar-position",
+    "astronomy"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/acamarata/solar-spa.git"
+  },
+  "homepage": "https://github.com/acamarata/solar-spa#readme",
+  "bugs": {
+    "url": "https://github.com/acamarata/solar-spa/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   }
 }

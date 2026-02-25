@@ -1,0 +1,63 @@
+# ─── Dependencies ───
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build ───
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# ─── Environment ───
+.env
+.env.*
+!.env.example
+
+# ─── OS ───
+.DS_Store
+Thumbs.db
+._*
+Desktop.ini
+$RECYCLE.BIN/
+
+# ─── IDE / Editor ───
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ─── Logs ───
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ─── Testing / Coverage ───
+coverage/
+.nyc_output/
+
+# ─── AI Agents ───
+.claude/
+.cursor/
+.copilot/
+.github/copilot/
+.aider*
+.codeium/
+.tabnine/
+.windsurf/
+.cody/
+.sourcegraph/
+
+# ─── Packages ───
+*.tgz
+
+# ─── Custom ───
+# C compilation artifacts (WASM binary is pre-compiled and tracked)
+*.o
+*.a
