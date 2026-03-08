@@ -40,7 +40,7 @@ Emscripten supports a `locateFile` callback that lets the consumer specify where
 
 ```js
 const Module = await createModule({
-  locateFile: (path) => '/static/wasm/' + path
+  locateFile: (path) => '/static/wasm/' + path,
 });
 ```
 
@@ -54,10 +54,8 @@ Webpack can be configured to copy `.wasm` files to the output directory and rewr
 // webpack.config.js
 module.exports = {
   module: {
-    rules: [
-      { test: /\.wasm$/, type: 'asset/resource' }
-    ]
-  }
+    rules: [{ test: /\.wasm$/, type: 'asset/resource' }],
+  },
 };
 ```
 
@@ -90,13 +88,15 @@ let _pending: Promise<void> | null = null;
 export function init(): Promise<void> {
   if (_module) return Promise.resolve();
   if (_pending) return _pending;
-  _pending = createSpaModule().then((mod) => {
-    _module = mod;
-    _pending = null;
-  }).catch((err) => {
-    _pending = null; // Allow retry on next call
-    throw err;
-  });
+  _pending = createSpaModule()
+    .then((mod) => {
+      _module = mod;
+      _pending = null;
+    })
+    .catch((err) => {
+      _pending = null; // Allow retry on next call
+      throw err;
+    });
   return _pending;
 }
 ```
@@ -117,13 +117,13 @@ For small to medium WASM binaries (under a few hundred KB), inlining as base64 i
 
 ## Summary
 
-| Approach | Universal? | Consumer config? | Size overhead |
-| --- | --- | --- | --- |
-| Separate `.wasm` + default resolution | No | No | None |
-| `locateFile` callback | Yes* | Yes (per-bundler) | None |
-| Bundler-specific config | Per-bundler | Yes | None |
-| `import.meta.url` | Partial | No | None |
-| **SINGLE_FILE (base64 inline)** | **Yes** | **No** | **~33%** |
+| Approach                              | Universal?  | Consumer config?  | Size overhead |
+| ------------------------------------- | ----------- | ----------------- | ------------- |
+| Separate `.wasm` + default resolution | No          | No                | None          |
+| `locateFile` callback                 | Yes\*       | Yes (per-bundler) | None          |
+| Bundler-specific config               | Per-bundler | Yes               | None          |
+| `import.meta.url`                     | Partial     | No                | None          |
+| **SINGLE_FILE (base64 inline)**       | **Yes**     | **No**            | **~33%**      |
 
 solar-spa uses the last approach. It works in every tested environment without any consumer configuration.
 

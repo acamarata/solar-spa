@@ -80,25 +80,25 @@ The SPA's accuracy far exceeds the precision of any practical measurement system
 
 The SPA validates all inputs and returns a non-zero error code if any are out of range:
 
-| Parameter | Valid range |
-| --- | --- |
-| Year | -2000 to 6000 |
-| Month | 1 to 12 |
-| Day | 1 to 31 |
-| Hour | 0 to 24 |
-| Minute | 0 to 59 |
-| Second | 0 to less than 60 |
-| Timezone | -18 to 18 |
-| Latitude | -90 to 90 |
-| Longitude | -180 to 180 |
-| Elevation | -6500000 or higher (meters) |
-| Pressure | 0 to 5000 |
-| Temperature | -273 to 6000 |
-| Delta UT1 | -1 to 1 |
-| Delta T | -8000 to 8000 |
-| Slope | -360 to 360 |
-| Azimuth rotation | -360 to 360 |
-| Atmospheric refraction | -5 to 5 |
+| Parameter              | Valid range                 |
+| ---------------------- | --------------------------- |
+| Year                   | -2000 to 6000               |
+| Month                  | 1 to 12                     |
+| Day                    | 1 to 31                     |
+| Hour                   | 0 to 24                     |
+| Minute                 | 0 to 59                     |
+| Second                 | 0 to less than 60           |
+| Timezone               | -18 to 18                   |
+| Latitude               | -90 to 90                   |
+| Longitude              | -180 to 180                 |
+| Elevation              | -6500000 or higher (meters) |
+| Pressure               | 0 to 5000                   |
+| Temperature            | -273 to 6000                |
+| Delta UT1              | -1 to 1                     |
+| Delta T                | -8000 to 8000               |
+| Slope                  | -360 to 360                 |
+| Azimuth rotation       | -360 to 360                 |
+| Atmospheric refraction | -5 to 5                     |
 
 The solar-spa package propagates these error codes as thrown JavaScript errors.
 

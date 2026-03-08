@@ -28,16 +28,16 @@ For single calls, the difference is negligible. See [Performance](Performance) f
 import { spa } from 'solar-spa';
 
 const result = await spa(
-  new Date(2025, 5, 21, 12, 0, 0),   // June 21, 2025 at noon
-  40.7128,                             // latitude (NYC)
-  -74.0060,                            // longitude
-  { timezone: -4, elevation: 10 }      // EDT (UTC-4), 10m elevation
+  new Date(2025, 5, 21, 12, 0, 0), // June 21, 2025 at noon
+  40.7128, // latitude (NYC)
+  -74.006, // longitude
+  { timezone: -4, elevation: 10 }, // EDT (UTC-4), 10m elevation
 );
 
-console.log(result.zenith);       // ~27   (degrees from vertical)
-console.log(result.azimuth);      // ~179  (degrees from north)
-console.log(result.sunrise);      // ~5.4  (fractional hours)
-console.log(result.sunset);       // ~20.5 (fractional hours)
+console.log(result.zenith); // ~27   (degrees from vertical)
+console.log(result.azimuth); // ~179  (degrees from north)
+console.log(result.sunrise); // ~5.4  (fractional hours)
+console.log(result.sunset); // ~20.5 (fractional hours)
 ```
 
 CommonJS works too:

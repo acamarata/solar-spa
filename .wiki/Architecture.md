@@ -22,23 +22,23 @@ The C source is compiled with Emscripten to produce a single JavaScript file tha
 
 ### Build flags
 
-| Flag | Purpose |
-| --- | --- |
-| `-O3 -flto` | Maximum optimization with link-time optimization. The compiler inlines across translation units and eliminates dead code |
-| `--no-entry` | No `main()` function exists. The module exposes only the exported wrapper functions |
-| `-sSINGLE_FILE=1` | Inlines the WASM binary as a base64 string inside the JavaScript file. Eliminates the `.wasm` file entirely |
-| `-sMODULARIZE=1` | Wraps the output in a factory function (`createSpaModule()`) instead of executing immediately. Prevents global `Module` pollution |
-| `-sEXPORT_NAME=createSpaModule` | Names the factory function |
-| `-sEXPORTED_FUNCTIONS` | Exposes `_spa_calculate_wrapper`, `_spa_free_result`, `_malloc`, and `_free` to JavaScript |
-| `-sEXPORTED_RUNTIME_METHODS` | Makes `cwrap` and `getValue` available on the module instance |
-| `-sNO_FILESYSTEM=1` | Excludes the virtual filesystem API. SPA does not read files. Saves ~15KB |
-| `-sINITIAL_MEMORY=1048576` | 1MB fixed memory. SPA allocates one 80-byte struct per call, so this is more than sufficient |
-| `-sALLOW_MEMORY_GROWTH=0` | Disables dynamic memory growth. Fixed memory avoids the overhead of growable ArrayBuffers and detached buffer checks |
-| `-sSTACK_SIZE=65536` | 64KB stack. Default is 5MB, which is wasteful for a pure computation |
-| `-sENVIRONMENT='node,web,worker'` | Includes runtime support for Node.js, browsers, and web workers |
-| `-sASSERTIONS=0` | Removes debug assertions. Smaller output, no runtime checks |
-| `-sDISABLE_EXCEPTION_CATCHING=1` | Disables C++ exception support. SPA is plain C, so this strips dead code |
-| `-sWASM_BIGINT=0` | Disables BigInt integration for 64-bit integers. SPA uses only doubles and 32-bit ints |
+| Flag                              | Purpose                                                                                                                           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `-O3 -flto`                       | Maximum optimization with link-time optimization. The compiler inlines across translation units and eliminates dead code          |
+| `--no-entry`                      | No `main()` function exists. The module exposes only the exported wrapper functions                                               |
+| `-sSINGLE_FILE=1`                 | Inlines the WASM binary as a base64 string inside the JavaScript file. Eliminates the `.wasm` file entirely                       |
+| `-sMODULARIZE=1`                  | Wraps the output in a factory function (`createSpaModule()`) instead of executing immediately. Prevents global `Module` pollution |
+| `-sEXPORT_NAME=createSpaModule`   | Names the factory function                                                                                                        |
+| `-sEXPORTED_FUNCTIONS`            | Exposes `_spa_calculate_wrapper`, `_spa_free_result`, `_malloc`, and `_free` to JavaScript                                        |
+| `-sEXPORTED_RUNTIME_METHODS`      | Makes `cwrap` and `getValue` available on the module instance                                                                     |
+| `-sNO_FILESYSTEM=1`               | Excludes the virtual filesystem API. SPA does not read files. Saves ~15KB                                                         |
+| `-sINITIAL_MEMORY=1048576`        | 1MB fixed memory. SPA allocates one 80-byte struct per call, so this is more than sufficient                                      |
+| `-sALLOW_MEMORY_GROWTH=0`         | Disables dynamic memory growth. Fixed memory avoids the overhead of growable ArrayBuffers and detached buffer checks              |
+| `-sSTACK_SIZE=65536`              | 64KB stack. Default is 5MB, which is wasteful for a pure computation                                                              |
+| `-sENVIRONMENT='node,web,worker'` | Includes runtime support for Node.js, browsers, and web workers                                                                   |
+| `-sASSERTIONS=0`                  | Removes debug assertions. Smaller output, no runtime checks                                                                       |
+| `-sDISABLE_EXCEPTION_CATCHING=1`  | Disables C++ exception support. SPA is plain C, so this strips dead code                                                          |
+| `-sWASM_BIGINT=0`                 | Disables BigInt integration for 64-bit integers. SPA uses only doubles and 32-bit ints                                            |
 
 The `SINGLE_FILE` flag is the critical one. Most WASM packages ship a separate `.wasm` file and resolve its path at runtime using `__dirname`, `import.meta.url`, or `URL` constructors. This breaks in bundlers (Webpack rewrites paths), edge runtimes (no filesystem), and testing environments (different module resolution). By inlining the binary, the module is self-contained. It works anywhere JavaScript runs.
 

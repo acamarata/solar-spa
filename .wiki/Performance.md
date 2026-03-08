@@ -26,7 +26,7 @@ Use `init()` at application startup to pay the initialization cost early:
 
 ```js
 import { init } from 'solar-spa';
-await init();  // ~5-15ms, happens once
+await init(); // ~5-15ms, happens once
 ```
 
 ## Memory footprint
@@ -45,12 +45,12 @@ Memory growth is disabled (`ALLOW_MEMORY_GROWTH=0`). This means the ArrayBuffer 
 
 Not all callers need every output. The `function` option controls how much work the SPA does:
 
-| Code | Computation | Relative cost |
-| --- | --- | --- |
-| `SPA_ZA` (0) | Zenith and azimuth | ~1x |
-| `SPA_ZA_INC` (1) | + incidence angle | ~1x (incidence is cheap) |
+| Code             | Computation        | Relative cost                    |
+| ---------------- | ------------------ | -------------------------------- |
+| `SPA_ZA` (0)     | Zenith and azimuth | ~1x                              |
+| `SPA_ZA_INC` (1) | + incidence angle  | ~1x (incidence is cheap)         |
 | `SPA_ZA_RTS` (2) | + rise/transit/set | ~3x (three position evaluations) |
-| `SPA_ALL` (3) | All outputs | ~3x |
+| `SPA_ALL` (3)    | All outputs        | ~3x                              |
 
 The sunrise/sunset calculation is the expensive part. It evaluates the full position algorithm three times (for transit, sunrise, and sunset). If you only need the current sun position, use `SPA_ZA` for a roughly 3x speed improvement.
 
@@ -69,14 +69,14 @@ These flags together produce a ~60KB output file, down from the ~150KB that a de
 
 ## When to use solar-spa vs nrel-spa
 
-| Scenario | Recommended |
-| --- | --- |
-| Single position lookup (e.g., sunrise for today) | Either. Both are fast enough |
-| Batch computation (hundreds or thousands of positions) | solar-spa (WASM) |
-| Animation or real-time tracking | solar-spa (WASM) |
-| Synchronous API required | [nrel-spa](https://github.com/acamarata/nrel-spa) (pure JS, sync) |
-| Environments without WASM support | [nrel-spa](https://github.com/acamarata/nrel-spa) |
-| Minimal dependency footprint | [nrel-spa](https://github.com/acamarata/nrel-spa) (zero deps, ~30KB) |
+| Scenario                                               | Recommended                                                          |
+| ------------------------------------------------------ | -------------------------------------------------------------------- |
+| Single position lookup (e.g., sunrise for today)       | Either. Both are fast enough                                         |
+| Batch computation (hundreds or thousands of positions) | solar-spa (WASM)                                                     |
+| Animation or real-time tracking                        | solar-spa (WASM)                                                     |
+| Synchronous API required                               | [nrel-spa](https://github.com/acamarata/nrel-spa) (pure JS, sync)    |
+| Environments without WASM support                      | [nrel-spa](https://github.com/acamarata/nrel-spa)                    |
+| Minimal dependency footprint                           | [nrel-spa](https://github.com/acamarata/nrel-spa) (zero deps, ~30KB) |
 
 Both packages implement the same NREL algorithm and produce identical results within floating-point rounding tolerance.
 
