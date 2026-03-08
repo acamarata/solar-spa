@@ -61,3 +61,9 @@ coverage/
 # C compilation artifacts (WASM binary is pre-compiled and tracked)
 *.o
 *.a
+.vscode/*
+.codex/
+.aider/
+.aider.chat.history.md
+.continue/
+.gemini/

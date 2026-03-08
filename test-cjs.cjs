@@ -1,58 +1,72 @@
 'use strict';
 
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 const { spa, spaFormatted, formatTime, init, SPA_ZA, SPA_ALL } = require('./dist/index.cjs');
 
-let passed = 0;
-let failed = 0;
+describe('CJS exports', () => {
+  it('all exports are available', () => {
+    assert.equal(typeof spa, 'function');
+    assert.equal(typeof spaFormatted, 'function');
+    assert.equal(typeof formatTime, 'function');
+    assert.equal(typeof init, 'function');
+    assert.equal(SPA_ZA, 0);
+    assert.equal(SPA_ALL, 3);
+  });
+});
 
-function assert(condition, message) {
-  if (condition) {
-    passed++;
-  } else {
-    failed++;
-    console.error('  FAIL: ' + message);
-  }
-}
+describe('CJS spa()', () => {
+  it('core calculation succeeds', async () => {
+    const result = await spa(
+      new Date(2023, 3, 1, 0, 0, 0),
+      40.7128, -74.006,
+      { timezone: -4, elevation: 10 },
+    );
+    assert.equal(result.error_code, 0);
+    assert.ok(result.zenith > 0);
+    assert.ok(result.azimuth > 0);
+    assert.ok(result.sunrise > 0);
+  });
+});
 
-async function run() {
-  console.log('CJS smoke test\n');
+describe('CJS spaFormatted()', () => {
+  it('returns formatted time strings', async () => {
+    const fmt = await spaFormatted(
+      new Date(2023, 3, 1, 12, 0, 0),
+      40.7128, -74.006,
+      { timezone: -4 },
+    );
+    assert.equal(typeof fmt.sunrise, 'string');
+    assert.match(fmt.sunrise, /^\d{2}:\d{2}:\d{2}$/);
+  });
+});
 
-  // Verify all exports are available
-  assert(typeof spa === 'function', 'spa is a function');
-  assert(typeof spaFormatted === 'function', 'spaFormatted is a function');
-  assert(typeof formatTime === 'function', 'formatTime is a function');
-  assert(typeof init === 'function', 'init is a function');
-  assert(SPA_ZA === 0, 'SPA_ZA constant is 0');
-  assert(SPA_ALL === 3, 'SPA_ALL constant is 3');
+describe('CJS formatTime()', () => {
+  it('formats correctly', () => {
+    assert.equal(formatTime(6.5), '06:30:00');
+  });
+});
 
-  // Core calculation
-  const result = await spa(
-    new Date(2023, 3, 1, 0, 0, 0),
-    40.7128, -74.006,
-    { timezone: -4, elevation: 10 },
-  );
-  assert(result.error_code === 0, 'calculation succeeds');
-  assert(result.zenith > 0, 'zenith is positive');
-  assert(result.azimuth > 0, 'azimuth is positive');
-  assert(result.sunrise > 0, 'sunrise is positive');
+describe('CJS option validation', () => {
+  it('rejects non-number elevation', async () => {
+    await assert.rejects(() => spa(new Date(), 40, -74, { elevation: 'high' }), TypeError);
+  });
 
-  // Formatted output
-  const fmt = await spaFormatted(
-    new Date(2023, 3, 1, 12, 0, 0),
-    40.7128, -74.006,
-    { timezone: -4 },
-  );
-  assert(typeof fmt.sunrise === 'string', 'formatted sunrise is a string');
-  assert(/^\d{2}:\d{2}:\d{2}$/.test(fmt.sunrise), 'sunrise matches HH:MM:SS');
+  it('rejects Infinity pressure', async () => {
+    await assert.rejects(() => spa(new Date(), 40, -74, { pressure: Infinity }), RangeError);
+  });
 
-  // formatTime
-  assert(formatTime(6.5) === '06:30:00', 'formatTime works');
+  it('rejects NaN temperature', async () => {
+    await assert.rejects(() => spa(new Date(), 40, -74, { temperature: NaN }), RangeError);
+  });
 
-  console.log('\n' + passed + ' passed, ' + failed + ' failed');
-  if (failed > 0) process.exit(1);
-}
-
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  it('accepts valid numeric options', async () => {
+    const result = await spa(new Date(2023, 3, 1, 12, 0, 0), 40, -74, {
+      timezone: -4,
+      elevation: 100,
+      pressure: 1000,
+      temperature: 25,
+    });
+    assert.equal(result.error_code, 0);
+  });
 });

@@ -52,19 +52,36 @@ export function init(): Promise<void> {
   if (_module) return Promise.resolve();
   if (_pending) return _pending;
 
-  _pending = createSpaModule().then((mod: SpaWasmModule) => {
-    _module = mod;
-    _calculate = mod.cwrap('spa_calculate_wrapper', 'number', [
-      'number', 'number', 'number', 'number', 'number', 'number',
-      'number', 'number', 'number', 'number', 'number', 'number',
-      'number', 'number', 'number', 'number', 'number', 'number',
-    ]) as (...args: number[]) => number;
-    _free = mod.cwrap('spa_free_result', null, ['number']) as (ptr: number) => void;
-    _pending = null;
-  }).catch((err: unknown) => {
-    _pending = null;
-    throw err;
-  });
+  _pending = createSpaModule()
+    .then((mod: SpaWasmModule) => {
+      _module = mod;
+      _calculate = mod.cwrap('spa_calculate_wrapper', 'number', [
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+        'number',
+      ]) as (...args: number[]) => number;
+      _free = mod.cwrap('spa_free_result', null, ['number']) as (ptr: number) => void;
+      _pending = null;
+    })
+    .catch((err: unknown) => {
+      _pending = null;
+      throw err;
+    });
 
   return _pending;
 }
@@ -72,21 +89,20 @@ export function init(): Promise<void> {
 /**
  * Format fractional hours to HH:MM:SS string.
  * Returns "N/A" for non-finite or negative values (polar night/day scenarios).
+ *
+ * @param hours - Fractional hours (e.g. 6.5 for 06:30:00). Values >= 24 wrap.
+ * @returns Formatted time string in HH:MM:SS format, or "N/A" if input is invalid.
  */
 export function formatTime(hours: number): string {
   if (!isFinite(hours) || hours < 0) return 'N/A';
 
   const totalSec = Math.round(hours * 3600);
-  // Wrap at 24h: values near midnight can round to 24:00:00
   const h = Math.floor(totalSec / 3600) % 24;
-  const rem = totalSec - Math.floor(totalSec / 3600) * 3600;
-  const m = Math.floor(rem / 60);
-  const s = rem - m * 60;
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
 
   return (
-    String(h).padStart(2, '0') + ':' +
-    String(m).padStart(2, '0') + ':' +
-    String(s).padStart(2, '0')
+    String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
   );
 }
 
@@ -94,16 +110,16 @@ export function formatTime(hours: number): string {
 function readResult(ptr: number): SpaResult {
   const m = _module!;
   const result: SpaResult = {
-    zenith:          m.getValue(ptr + OFFSET.zenith, 'double'),
-    azimuth_astro:   m.getValue(ptr + OFFSET.azimuth_astro, 'double'),
-    azimuth:         m.getValue(ptr + OFFSET.azimuth, 'double'),
-    incidence:       m.getValue(ptr + OFFSET.incidence, 'double'),
-    sunrise:         m.getValue(ptr + OFFSET.sunrise, 'double'),
-    sunset:          m.getValue(ptr + OFFSET.sunset, 'double'),
-    suntransit:      m.getValue(ptr + OFFSET.suntransit, 'double'),
+    zenith: m.getValue(ptr + OFFSET.zenith, 'double'),
+    azimuth_astro: m.getValue(ptr + OFFSET.azimuth_astro, 'double'),
+    azimuth: m.getValue(ptr + OFFSET.azimuth, 'double'),
+    incidence: m.getValue(ptr + OFFSET.incidence, 'double'),
+    sunrise: m.getValue(ptr + OFFSET.sunrise, 'double'),
+    sunset: m.getValue(ptr + OFFSET.sunset, 'double'),
+    suntransit: m.getValue(ptr + OFFSET.suntransit, 'double'),
     sun_transit_alt: m.getValue(ptr + OFFSET.sun_transit_alt, 'double'),
-    eot:             m.getValue(ptr + OFFSET.eot, 'double'),
-    error_code:      m.getValue(ptr + OFFSET.error_code, 'i32'),
+    eot: m.getValue(ptr + OFFSET.eot, 'double'),
+    error_code: m.getValue(ptr + OFFSET.error_code, 'i32'),
   };
   _free!(ptr);
   return result;
@@ -114,8 +130,34 @@ function readResult(ptr: number): SpaResult {
  * @internal
  */
 function assertFiniteNumber(value: unknown, name: string): asserts value is number {
-  if (typeof value !== 'number' || !isFinite(value)) {
-    throw new TypeError(`SPA: ${name} must be a finite number, got ${typeof value === 'number' ? value : typeof value}`);
+  if (typeof value !== 'number') {
+    throw new TypeError(`SPA: ${name} must be a finite number, got ${typeof value}`);
+  }
+  if (!isFinite(value)) {
+    throw new RangeError(`SPA: ${name} must be a finite number, got ${value}`);
+  }
+}
+
+/** Field names in SpaOptions that must be finite numbers when provided. */
+const NUMERIC_OPTION_FIELDS = [
+  'elevation',
+  'pressure',
+  'temperature',
+  'delta_t',
+  'slope',
+  'azm_rotation',
+  'atmos_refract',
+] as const;
+
+/**
+ * Validate numeric option fields. Each, if provided, must be a finite number.
+ * @internal
+ */
+function validateOptions(opts: SpaOptions): void {
+  for (const field of NUMERIC_OPTION_FIELDS) {
+    if (opts[field] !== undefined) {
+      assertFiniteNumber(opts[field], `options.${field}`);
+    }
   }
 }
 
@@ -127,6 +169,8 @@ function assertFiniteNumber(value: unknown, name: string): asserts value is numb
  * @param longitude - Observer longitude in degrees (-180 to 180)
  * @param options - Optional parameters
  * @returns Solar position result with all computed values
+ * @throws {TypeError} If date is not a valid Date, or if latitude/longitude/option fields are not numbers
+ * @throws {RangeError} If latitude/longitude are out of bounds, or if option fields are Infinity/NaN
  */
 export async function spa(
   date: Date,
@@ -146,6 +190,10 @@ export async function spa(
   }
   if (longitude < -180 || longitude > 180) {
     throw new RangeError(`SPA: longitude must be between -180 and 180, got ${longitude}`);
+  }
+
+  if (options) {
+    validateOptions(options);
   }
 
   await init();
@@ -192,6 +240,9 @@ export async function spa(
  *
  * Same parameters as spa(). Returns sunrise, sunset, and suntransit
  * as HH:MM:SS strings instead of fractional hours.
+ *
+ * @throws {TypeError} If date is not a valid Date, or if latitude/longitude/option fields are not numbers
+ * @throws {RangeError} If latitude/longitude are out of bounds, or if option fields are Infinity/NaN
  */
 export async function spaFormatted(
   date: Date,
@@ -201,16 +252,16 @@ export async function spaFormatted(
 ): Promise<SpaFormattedResult> {
   const result = await spa(date, latitude, longitude, options);
   return {
-    zenith:          result.zenith,
-    azimuth_astro:   result.azimuth_astro,
-    azimuth:         result.azimuth,
-    incidence:       result.incidence,
-    sunrise:         formatTime(result.sunrise),
-    sunset:          formatTime(result.sunset),
-    suntransit:      formatTime(result.suntransit),
+    zenith: result.zenith,
+    azimuth_astro: result.azimuth_astro,
+    azimuth: result.azimuth,
+    incidence: result.incidence,
+    sunrise: formatTime(result.sunrise),
+    sunset: formatTime(result.sunset),
+    suntransit: formatTime(result.suntransit),
     sun_transit_alt: result.sun_transit_alt,
-    eot:             result.eot,
-    error_code:      result.error_code,
+    eot: result.eot,
+    error_code: result.error_code,
   };
 }
 

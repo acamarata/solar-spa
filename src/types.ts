@@ -1,10 +1,17 @@
-/** SPA function codes. Control which outputs are computed. */
+/** Compute zenith and azimuth only. */
 export const SPA_ZA = 0 as const;
+/** Compute zenith, azimuth, and incidence angle. */
 export const SPA_ZA_INC = 1 as const;
+/** Compute zenith, azimuth, and rise/transit/set times. */
 export const SPA_ZA_RTS = 2 as const;
+/** Compute all outputs: zenith, azimuth, incidence, and rise/transit/set. */
 export const SPA_ALL = 3 as const;
 
-export type SpaFunctionCode = typeof SPA_ZA | typeof SPA_ZA_INC | typeof SPA_ZA_RTS | typeof SPA_ALL;
+export type SpaFunctionCode =
+  | typeof SPA_ZA
+  | typeof SPA_ZA_INC
+  | typeof SPA_ZA_RTS
+  | typeof SPA_ALL;
 
 export interface SpaOptions {
   /**
@@ -69,6 +76,6 @@ export interface SpaFormattedResult extends Omit<SpaResult, 'sunrise' | 'sunset'
  * @internal
  */
 export interface SpaWasmModule {
-  cwrap(name: string, returnType: string | null, argTypes: string[]): Function;
+  cwrap(name: string, returnType: string | null, argTypes: string[]): (...args: never[]) => unknown;
   getValue(ptr: number, type: string): number;
 }
