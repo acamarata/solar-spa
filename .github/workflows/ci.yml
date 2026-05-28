@@ -16,14 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
 
@@ -42,14 +41,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
@@ -61,14 +59,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
@@ -79,14 +76,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build:ts

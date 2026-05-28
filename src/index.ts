@@ -11,7 +11,7 @@ import { SPA_ALL } from './types.js';
 // In CJS builds, require() is natively available.
 declare const __require: NodeRequire;
 const _loadModule = typeof __require === 'function' ? __require : require;
-const createSpaModule: () => Promise<SpaWasmModule> = _loadModule('../wasm/spa-module.js');
+const createSpaModule: () => Promise<SpaWasmModule> = _loadModule('../wasm/spa-module.cjs');
 
 // Singleton: the WASM module initializes once, all calls share it.
 let _module: SpaWasmModule | null = null;

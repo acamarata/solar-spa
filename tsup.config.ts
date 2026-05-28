@@ -24,5 +24,5 @@ export default defineConfig({
     return {};
   },
   // The WASM module is Emscripten CJS output, keep it external.
-  external: ['../wasm/spa-module.js'],
+  external: ['../wasm/spa-module.cjs'],
 });
