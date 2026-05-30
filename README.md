@@ -2,9 +2,11 @@
 
 [![npm version](https://img.shields.io/npm/v/solar-spa.svg)](https://www.npmjs.com/package/solar-spa)
 [![CI](https://github.com/acamarata/solar-spa/actions/workflows/ci.yml/badge.svg)](https://github.com/acamarata/solar-spa/actions/workflows/ci.yml)
+[![coverage](https://codecov.io/gh/acamarata/solar-spa/branch/main/graph/badge.svg)](https://codecov.io/gh/acamarata/solar-spa)
 [![license](https://img.shields.io/npm/l/solar-spa.svg)](https://github.com/acamarata/solar-spa/blob/main/LICENSE)
+[![wiki](https://img.shields.io/badge/docs-wiki-blue)](https://github.com/acamarata/solar-spa/wiki)
 
-NREL Solar Position Algorithm compiled to WebAssembly. Calculates solar zenith, azimuth, incidence angle, sunrise, sunset, solar noon, and equation of time for any location and date. The WASM binary is inlined as base64, so there is no external `.wasm` file to locate — it works in Node.js, browsers, Webpack, Vite, Next.js, and web workers without configuration.
+NREL Solar Position Algorithm compiled to WebAssembly. Calculates solar zenith, azimuth, incidence angle, sunrise, sunset, solar noon, and equation of time for any location and date. The WASM binary is inlined as base64, so there is no external `.wasm` file to locate. It works in Node.js, browsers, Webpack, Vite, Next.js, and web workers without configuration.
 
 ## Installation
 

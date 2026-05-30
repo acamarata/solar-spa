@@ -2,16 +2,33 @@
 
 **[Home](Home)**
 
-**Reference**
+**API**
 - [API Reference](API-Reference)
+- [spa()](api/spa)
+- [spaFormatted()](api/spaFormatted)
+- [formatTime()](api/formatTime)
+- [init()](api/init)
+- [SpaOptions](api/spa-options)
+- [SpaResult](api/spa-result)
+
+**Reference**
 - [Architecture](Architecture)
 - [NREL SPA Algorithm](NREL-SPA-Algorithm)
 
-**Performance & Compatibility**
+**Performance**
+- [Bundle Size and Benchmarks](benchmarks/index)
 - [Performance](Performance)
+- [Validation and Benchmarks](Validation-and-Benchmarks)
 - [Bundler Compatibility](Bundler-Compatibility)
 - [WebAssembly in npm Packages](WebAssembly-in-npm-Packages)
-- [Validation and Benchmarks](Validation-and-Benchmarks)
+
+**Guides**
+- [Quick Start](guides/quickstart)
+- [Advanced Usage](guides/advanced)
+
+**Examples**
+- [Annual Daylight Hours](examples/annual-daylight)
+- [Solar Clock](examples/solar-clock)
 
 **Contributing**
 - [Contributing](Contributing)

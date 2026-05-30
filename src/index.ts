@@ -44,9 +44,18 @@ const OFFSET = {
 } as const;
 
 /**
- * Initialize the WASM module. Returns a cached promise on repeat calls.
- * Safe to call multiple times. If initialization fails, subsequent calls
- * will retry rather than returning the failed promise.
+ * Purpose: Pre-initialize the WASM module before the first spa() call.
+ * Inputs: none
+ * Outputs: Promise<void>; resolves when the module is ready
+ * Constraints: Safe to call multiple times; subsequent calls return immediately.
+ *   If init() fails, the next call retries (failed promise is discarded).
+ * SPORT: packages.md → solar-spa row
+ *
+ * @returns Promise that resolves when the WASM module is initialized.
+ * @example
+ * import { init, spa } from 'solar-spa';
+ * await init(); // pay WASM startup cost at app boot
+ * const result = await spa(new Date(), 40.7128, -74.0060); // no init overhead
  */
 export function init(): Promise<void> {
   if (_module) return Promise.resolve();
@@ -87,11 +96,19 @@ export function init(): Promise<void> {
 }
 
 /**
- * Format fractional hours to HH:MM:SS string.
- * Returns "N/A" for non-finite or negative values (polar night/day scenarios).
+ * Purpose: Convert fractional hours to an HH:MM:SS string.
+ * Inputs: hours, fractional hours (e.g. 6.5 for "06:30:00"); values ≥24 wrap
+ * Outputs: "HH:MM:SS" string, or "N/A" for non-finite/negative inputs
+ * Constraints: Non-finite and negative values occur during polar day/night;
+ *   returning "N/A" lets callers display a sensible label without special-casing.
+ * SPORT: packages.md → solar-spa row
  *
  * @param hours - Fractional hours (e.g. 6.5 for 06:30:00). Values >= 24 wrap.
- * @returns Formatted time string in HH:MM:SS format, or "N/A" if input is invalid.
+ * @returns Formatted time string in HH:MM:SS, or "N/A" for invalid input.
+ * @example
+ * formatTime(6.5)      // "06:30:00"
+ * formatTime(12)       // "12:00:00"
+ * formatTime(Infinity) // "N/A"
  */
 export function formatTime(hours: number): string {
   if (!isFinite(hours) || hours < 0) return 'N/A';
@@ -162,15 +179,27 @@ function validateOptions(opts: SpaOptions): void {
 }
 
 /**
- * Compute solar position for the given parameters.
+ * Purpose: Compute solar position using the NREL SPA algorithm via WASM.
+ * Inputs: date, latitude (-90..90), longitude (-180..180), optional SpaOptions
+ * Outputs: Promise<SpaResult> with zenith, azimuth, incidence, sunrise/sunset/transit, eot
+ * Constraints: WASM module is a singleton; first call incurs ~3-5 ms init cost.
+ *   Pass explicit timezone for server-side code (system may be UTC, not local).
+ *   Input validation runs before WASM call; invalid inputs throw before allocating.
+ * SPORT: packages.md → solar-spa row
  *
  * @param date - Date and time for the calculation
  * @param latitude - Observer latitude in degrees (-90 to 90)
  * @param longitude - Observer longitude in degrees (-180 to 180)
- * @param options - Optional parameters
+ * @param options - Optional observer and algorithm parameters (timezone, elevation, etc.)
  * @returns Solar position result with all computed values
  * @throws {TypeError} If date is not a valid Date, or if latitude/longitude/option fields are not numbers
  * @throws {RangeError} If latitude/longitude are out of bounds, or if option fields are Infinity/NaN
+ * @throws {Error} If WASM memory allocation fails or SPA returns a non-zero error code
+ * @example
+ * import { spa } from 'solar-spa';
+ * const result = await spa(new Date('2025-06-21T12:00:00Z'), 40.7128, -74.006, { timezone: -4 });
+ * console.log(result.zenith);   // ~27 degrees
+ * console.log(result.sunrise);  // ~5.4 fractional hours
  */
 export async function spa(
   date: Date,
@@ -236,13 +265,27 @@ export async function spa(
 }
 
 /**
- * Compute solar position and return formatted time strings.
+ * Purpose: Compute solar position with time fields formatted as HH:MM:SS strings.
+ * Inputs: same as spa(): date, latitude, longitude, options
+ * Outputs: Promise<SpaFormattedResult>; sunrise/sunset/suntransit are strings, all other fields numbers
+ * Constraints: Delegates to spa() internally; throws under the same conditions.
+ *   "N/A" is returned for sunrise/sunset/suntransit during polar day or polar night.
+ * SPORT: packages.md → solar-spa row
  *
- * Same parameters as spa(). Returns sunrise, sunset, and suntransit
- * as HH:MM:SS strings instead of fractional hours.
- *
+ * @param date - Date and time for the calculation
+ * @param latitude - Observer latitude in degrees (-90 to 90)
+ * @param longitude - Observer longitude in degrees (-180 to 180)
+ * @param options - Optional observer and algorithm parameters
+ * @returns Solar position result with sunrise, sunset, suntransit as HH:MM:SS strings
  * @throws {TypeError} If date is not a valid Date, or if latitude/longitude/option fields are not numbers
  * @throws {RangeError} If latitude/longitude are out of bounds, or if option fields are Infinity/NaN
+ * @throws {Error} If WASM memory allocation fails or SPA returns a non-zero error code
+ * @example
+ * import { spaFormatted } from 'solar-spa';
+ * const result = await spaFormatted(new Date('2025-06-21T12:00:00Z'), 40.7128, -74.006, { timezone: -4 });
+ * console.log(result.sunrise);    // "05:25:12"
+ * console.log(result.suntransit); // "12:59:58"
+ * console.log(result.sunset);     // "20:34:47"
  */
 export async function spaFormatted(
   date: Date,
