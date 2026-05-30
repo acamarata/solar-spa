@@ -8,7 +8,7 @@
 
 > **init**(): `Promise`\<`void`\>
 
-Defined in: [index.ts:60](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/index.ts#L60)
+Defined in: [index.ts:60](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/index.ts#L60)
 
 Purpose: Pre-initialize the WASM module before the first spa() call.
 Inputs: none

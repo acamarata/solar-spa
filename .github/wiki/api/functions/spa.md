@@ -8,7 +8,7 @@
 
 > **spa**(`date`, `latitude`, `longitude`, `options?`): `Promise`\<[`SpaResult`](../interfaces/SpaResult.md)\>
 
-Defined in: [index.ts:204](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/index.ts#L204)
+Defined in: [index.ts:204](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/index.ts#L204)
 
 Purpose: Compute solar position using the NREL SPA algorithm via WASM.
 Inputs: date, latitude (-90..90), longitude (-180..180), optional SpaOptions

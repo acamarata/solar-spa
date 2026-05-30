@@ -8,6 +8,6 @@
 
 > `const` **SPA\_ALL**: `3`
 
-Defined in: [types.ts:8](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L8)
+Defined in: [types.ts:8](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L8)
 
 Compute all outputs: zenith, azimuth, incidence, and rise/transit/set.

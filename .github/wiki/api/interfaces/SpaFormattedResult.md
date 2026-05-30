@@ -6,7 +6,7 @@
 
 # Interface: SpaFormattedResult
 
-Defined in: [types.ts:65](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L65)
+Defined in: [types.ts:65](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L65)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [types.ts:65](https://github.com/acamarata/solar-spa/blob/aa0161a824
 
 > **azimuth**: `number`
 
-Defined in: [types.ts:48](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L48)
+Defined in: [types.ts:48](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L48)
 
 Topocentric azimuth angle, eastward from north (navigational convention), in degrees.
 
@@ -32,7 +32,7 @@ Topocentric azimuth angle, eastward from north (navigational convention), in deg
 
 > **azimuth\_astro**: `number`
 
-Defined in: [types.ts:46](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L46)
+Defined in: [types.ts:46](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L46)
 
 Topocentric azimuth angle, westward from south (astronomical convention), in degrees.
 
@@ -46,7 +46,7 @@ Topocentric azimuth angle, westward from south (astronomical convention), in deg
 
 > **eot**: `number`
 
-Defined in: [types.ts:60](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L60)
+Defined in: [types.ts:60](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L60)
 
 Equation of time in minutes.
 
@@ -60,7 +60,7 @@ Equation of time in minutes.
 
 > **error\_code**: `number`
 
-Defined in: [types.ts:62](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L62)
+Defined in: [types.ts:62](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L62)
 
 SPA error code. Always 0 on a successful return (non-zero throws).
 
@@ -74,7 +74,7 @@ SPA error code. Always 0 on a successful return (non-zero throws).
 
 > **incidence**: `number`
 
-Defined in: [types.ts:50](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L50)
+Defined in: [types.ts:50](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L50)
 
 Surface incidence angle in degrees.
 
@@ -88,7 +88,7 @@ Surface incidence angle in degrees.
 
 > **sun\_transit\_alt**: `number`
 
-Defined in: [types.ts:58](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L58)
+Defined in: [types.ts:58](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L58)
 
 Sun transit altitude in degrees.
 
@@ -102,7 +102,7 @@ Sun transit altitude in degrees.
 
 > **sunrise**: `string`
 
-Defined in: [types.ts:67](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L67)
+Defined in: [types.ts:67](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L67)
 
 Local sunrise time as HH:MM:SS string. "N/A" during polar day/night.
 
@@ -112,7 +112,7 @@ Local sunrise time as HH:MM:SS string. "N/A" during polar day/night.
 
 > **sunset**: `string`
 
-Defined in: [types.ts:69](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L69)
+Defined in: [types.ts:69](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L69)
 
 Local sunset time as HH:MM:SS string. "N/A" during polar day/night.
 
@@ -122,7 +122,7 @@ Local sunset time as HH:MM:SS string. "N/A" during polar day/night.
 
 > **suntransit**: `string`
 
-Defined in: [types.ts:71](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L71)
+Defined in: [types.ts:71](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L71)
 
 Local sun transit time as HH:MM:SS string. "N/A" during polar day/night.
 
@@ -132,7 +132,7 @@ Local sun transit time as HH:MM:SS string. "N/A" during polar day/night.
 
 > **zenith**: `number`
 
-Defined in: [types.ts:44](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/types.ts#L44)
+Defined in: [types.ts:44](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/types.ts#L44)
 
 Topocentric zenith angle in degrees.
 

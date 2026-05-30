@@ -8,7 +8,7 @@
 
 > **formatTime**(`hours`): `string`
 
-Defined in: [index.ts:113](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/index.ts#L113)
+Defined in: [index.ts:113](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/index.ts#L113)
 
 Purpose: Convert fractional hours to an HH:MM:SS string.
 Inputs: hours, fractional hours (e.g. 6.5 for "06:30:00"); values ≥24 wrap

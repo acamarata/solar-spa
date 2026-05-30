@@ -8,7 +8,7 @@
 
 > **spaFormatted**(`date`, `latitude`, `longitude`, `options?`): `Promise`\<[`SpaFormattedResult`](../interfaces/SpaFormattedResult.md)\>
 
-Defined in: [index.ts:290](https://github.com/acamarata/solar-spa/blob/aa0161a82431adb93846e39b5278ac65de379dec/src/index.ts#L290)
+Defined in: [index.ts:290](https://github.com/acamarata/solar-spa/blob/3c848806ab852464d76baf7e3fc0ca58f5e42fd9/src/index.ts#L290)
 
 Purpose: Compute solar position with time fields formatted as HH:MM:SS strings.
 Inputs: same as spa(): date, latitude, longitude, options
