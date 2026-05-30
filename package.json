@@ -38,7 +38,8 @@
     "format:check": "prettier --check src/",
     "validate": "node validate.mjs",
     "prepublishOnly": "pnpm run build:ts",
-    "coverage": "c8 --reporter=lcov --reporter=text node --test"
+    "coverage": "c8 --reporter=lcov --reporter=text node --test",
+    "postbuild": "cp dist/index.d.ts dist/index.d.mts"
   },
   "keywords": [
     "solar",
