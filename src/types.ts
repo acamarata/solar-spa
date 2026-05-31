@@ -62,7 +62,7 @@ export interface SpaResult {
   error_code: number;
 }
 
-export interface SpaFormattedResult extends Omit<SpaResult, 'sunrise' | 'sunset' | 'suntransit'> {
+export interface SpaFormattedResult extends Omit<SpaResult, "sunrise" | "sunset" | "suntransit"> {
   /** Local sunrise time as HH:MM:SS string. "N/A" during polar day/night. */
   sunrise: string;
   /** Local sunset time as HH:MM:SS string. "N/A" during polar day/night. */

@@ -1,17 +1,17 @@
-import type { SpaWasmModule, SpaResult, SpaFormattedResult, SpaOptions } from './types.js';
+import type { SpaWasmModule, SpaResult, SpaFormattedResult, SpaOptions } from "./types.js";
 
-export type { SpaOptions, SpaResult, SpaFormattedResult } from './types.js';
-export { SPA_ZA, SPA_ZA_INC, SPA_ZA_RTS, SPA_ALL } from './types.js';
-export type { SpaFunctionCode } from './types.js';
+export type { SpaOptions, SpaResult, SpaFormattedResult } from "./types.js";
+export { SPA_ZA, SPA_ZA_INC, SPA_ZA_RTS, SPA_ALL } from "./types.js";
+export type { SpaFunctionCode } from "./types.js";
 
-import { SPA_ALL } from './types.js';
+import { SPA_ALL } from "./types.js";
 
 // The WASM module is Emscripten CJS output. In ESM builds, tsup injects a
 // createRequire-based __require shim via the banner option (see tsup.config.ts).
 // In CJS builds, require() is natively available.
 declare const __require: NodeRequire;
-const _loadModule = typeof __require === 'function' ? __require : require;
-const createSpaModule: () => Promise<SpaWasmModule> = _loadModule('../wasm/spa-module.cjs');
+const _loadModule = typeof __require === "function" ? __require : require;
+const createSpaModule: () => Promise<SpaWasmModule> = _loadModule("../wasm/spa-module.cjs");
 
 // Singleton: the WASM module initializes once, all calls share it.
 let _module: SpaWasmModule | null = null;
@@ -64,27 +64,27 @@ export function init(): Promise<void> {
   _pending = createSpaModule()
     .then((mod: SpaWasmModule) => {
       _module = mod;
-      _calculate = mod.cwrap('spa_calculate_wrapper', 'number', [
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
-        'number',
+      _calculate = mod.cwrap("spa_calculate_wrapper", "number", [
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
       ]) as (...args: number[]) => number;
-      _free = mod.cwrap('spa_free_result', null, ['number']) as (ptr: number) => void;
+      _free = mod.cwrap("spa_free_result", null, ["number"]) as (ptr: number) => void;
       _pending = null;
     })
     .catch((err: unknown) => {
@@ -111,7 +111,7 @@ export function init(): Promise<void> {
  * formatTime(Infinity) // "N/A"
  */
 export function formatTime(hours: number): string {
-  if (!isFinite(hours) || hours < 0) return 'N/A';
+  if (!isFinite(hours) || hours < 0) return "N/A";
 
   const totalSec = Math.round(hours * 3600);
   const h = Math.floor(totalSec / 3600) % 24;
@@ -119,7 +119,7 @@ export function formatTime(hours: number): string {
   const s = totalSec % 60;
 
   return (
-    String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+    String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0")
   );
 }
 
@@ -127,16 +127,16 @@ export function formatTime(hours: number): string {
 function readResult(ptr: number): SpaResult {
   const m = _module!;
   const result: SpaResult = {
-    zenith: m.getValue(ptr + OFFSET.zenith, 'double'),
-    azimuth_astro: m.getValue(ptr + OFFSET.azimuth_astro, 'double'),
-    azimuth: m.getValue(ptr + OFFSET.azimuth, 'double'),
-    incidence: m.getValue(ptr + OFFSET.incidence, 'double'),
-    sunrise: m.getValue(ptr + OFFSET.sunrise, 'double'),
-    sunset: m.getValue(ptr + OFFSET.sunset, 'double'),
-    suntransit: m.getValue(ptr + OFFSET.suntransit, 'double'),
-    sun_transit_alt: m.getValue(ptr + OFFSET.sun_transit_alt, 'double'),
-    eot: m.getValue(ptr + OFFSET.eot, 'double'),
-    error_code: m.getValue(ptr + OFFSET.error_code, 'i32'),
+    zenith: m.getValue(ptr + OFFSET.zenith, "double"),
+    azimuth_astro: m.getValue(ptr + OFFSET.azimuth_astro, "double"),
+    azimuth: m.getValue(ptr + OFFSET.azimuth, "double"),
+    incidence: m.getValue(ptr + OFFSET.incidence, "double"),
+    sunrise: m.getValue(ptr + OFFSET.sunrise, "double"),
+    sunset: m.getValue(ptr + OFFSET.sunset, "double"),
+    suntransit: m.getValue(ptr + OFFSET.suntransit, "double"),
+    sun_transit_alt: m.getValue(ptr + OFFSET.sun_transit_alt, "double"),
+    eot: m.getValue(ptr + OFFSET.eot, "double"),
+    error_code: m.getValue(ptr + OFFSET.error_code, "i32"),
   };
   _free!(ptr);
   return result;
@@ -147,7 +147,7 @@ function readResult(ptr: number): SpaResult {
  * @internal
  */
 function assertFiniteNumber(value: unknown, name: string): asserts value is number {
-  if (typeof value !== 'number') {
+  if (typeof value !== "number") {
     throw new TypeError(`SPA: ${name} must be a finite number, got ${typeof value}`);
   }
   if (!isFinite(value)) {
@@ -157,13 +157,13 @@ function assertFiniteNumber(value: unknown, name: string): asserts value is numb
 
 /** Field names in SpaOptions that must be finite numbers when provided. */
 const NUMERIC_OPTION_FIELDS = [
-  'elevation',
-  'pressure',
-  'temperature',
-  'delta_t',
-  'slope',
-  'azm_rotation',
-  'atmos_refract',
+  "elevation",
+  "pressure",
+  "temperature",
+  "delta_t",
+  "slope",
+  "azm_rotation",
+  "atmos_refract",
 ] as const;
 
 /**
@@ -209,10 +209,10 @@ export async function spa(
 ): Promise<SpaResult> {
   // Input validation
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new TypeError('SPA: date must be a valid Date object');
+    throw new TypeError("SPA: date must be a valid Date object");
   }
-  assertFiniteNumber(latitude, 'latitude');
-  assertFiniteNumber(longitude, 'longitude');
+  assertFiniteNumber(latitude, "latitude");
+  assertFiniteNumber(longitude, "longitude");
 
   if (latitude < -90 || latitude > 90) {
     throw new RangeError(`SPA: latitude must be between -90 and 90, got ${latitude}`);
@@ -252,13 +252,13 @@ export async function spa(
   );
 
   if (!ptr) {
-    throw new Error('SPA: memory allocation failed');
+    throw new Error("SPA: memory allocation failed");
   }
 
   const result = readResult(ptr);
 
   if (result.error_code !== 0) {
-    throw new Error('SPA: calculation failed (error code ' + result.error_code + ')');
+    throw new Error("SPA: calculation failed (error code " + result.error_code + ")");
   }
 
   return result;
