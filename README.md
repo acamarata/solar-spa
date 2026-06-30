@@ -59,6 +59,11 @@ This package includes the Solar Position Algorithm (SPA) developed at the Nation
 
 > Reda, I., Andreas, A. (2004). "Solar Position Algorithm for Solar Radiation Applications." *Solar Energy*, 76(5), 577-589.
 
+## Telemetry
+
+This package supports opt-in anonymous usage telemetry — off by default.
+Enable: `ACAMARATA_TELEMETRY=1`. See [TELEMETRY.md](./TELEMETRY.md) for what is sent and how to disable.
+
 ## License
 
 MIT (wrapper, TypeScript source, and build tooling). The NREL SPA C source (`src/spa.c`, `src/spa.h`) is subject to its own terms; see the notice in those files.
