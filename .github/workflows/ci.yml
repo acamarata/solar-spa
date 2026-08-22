@@ -166,7 +166,10 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
+      # build:ts only — the full `pnpm build` shells out to emcc for the WASM artifact,
+      # which is committed to the repo and not available on a stock runner. This matches
+      # what the Node matrix above does.
+      - run: pnpm run build:ts
       - name: Confirm the runner is actually in the matrix zone
         run: |
           echo "TZ=$TZ"
