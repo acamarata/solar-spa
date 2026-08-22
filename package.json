@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "solar-spa",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "NREL Solar Position Algorithm (SPA) compiled to WebAssembly. High-performance solar position, sunrise, sunset, and solar noon calculations.",
   "author": "Aric Camarata",
   "license": "MIT",

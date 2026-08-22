@@ -2,6 +2,18 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { spa, spaFormatted, formatTime, init, SPA_ZA, SPA_ZA_INC, SPA_ZA_RTS, SPA_ALL } from './dist/index.mjs';
 
+/**
+ * The instant at which the observer's wall clock reads the given components.
+ *
+ * `spa()` takes an INSTANT, not a wall-clock reading, and derives the observer's local
+ * components from it using `options.timezone`. Writing `new Date(2025, 5, 21, 12)` here
+ * would express noon on whichever machine runs the tests, which is only the intended noon
+ * when that machine happens to sit in the observer's zone. This helper says what was meant.
+ */
+function atOffset(year, monthIndex, day, hour, minute, second, tzHours) {
+  return new Date(Date.UTC(year, monthIndex, day, hour, minute, second) - tzHours * 3_600_000);
+}
+
 function approx(actual, expected, tolerance, label) {
   const diff = Math.abs(actual - expected);
   assert.ok(diff <= tolerance, `${label}: expected ${expected}, got ${actual} (diff: ${diff.toFixed(6)})`);
@@ -10,7 +22,7 @@ function approx(actual, expected, tolerance, label) {
 describe('spa()', () => {
   it('NYC, April 1 2023, midnight local (UTC-4)', async () => {
     const nyc = await spa(
-      new Date(2023, 3, 1, 0, 0, 0),
+      atOffset(2023, 3, 1, 0, 0, 0, -4),
       40.7128, -74.006,
       { timezone: -4, elevation: 10, temperature: 20, pressure: 1013.25 },
     );
@@ -25,7 +37,7 @@ describe('spa()', () => {
 
   it('London, June 21 2025, noon UTC', async () => {
     const london = await spa(
-      new Date(2025, 5, 21, 12, 0, 0),
+      atOffset(2025, 5, 21, 12, 0, 0, 0),
       51.5074, -0.1278,
       { timezone: 0, elevation: 11, temperature: 18 },
     );
@@ -38,7 +50,7 @@ describe('spa()', () => {
 
   it('Quito (equator), March 20 2025, noon UTC-5', async () => {
     const quito = await spa(
-      new Date(2025, 2, 20, 12, 0, 0),
+      atOffset(2025, 2, 20, 12, 0, 0, -5),
       -0.1807, -78.4678,
       { timezone: -5, elevation: 2850 },
     );
@@ -48,7 +60,7 @@ describe('spa()', () => {
 
   it('Sydney, June 21 2025 (winter), noon AEST', async () => {
     const sydney = await spa(
-      new Date(2025, 5, 21, 12, 0, 0),
+      atOffset(2025, 5, 21, 12, 0, 0, 10),
       -33.8688, 151.2093,
       { timezone: 10 },
     );
@@ -58,8 +70,8 @@ describe('spa()', () => {
   });
 
   it('repeated calls produce different results', async () => {
-    const a = await spa(new Date(2023, 0, 1, 12, 0, 0), 40, -74, { timezone: -5 });
-    const b = await spa(new Date(2023, 6, 1, 12, 0, 0), 40, -74, { timezone: -4 });
+    const a = await spa(atOffset(2023, 0, 1, 12, 0, 0, -5), 40, -74, { timezone: -5 });
+    const b = await spa(atOffset(2023, 6, 1, 12, 0, 0, -4), 40, -74, { timezone: -4 });
     assert.notEqual(a.zenith, b.zenith);
     assert.equal(a.error_code, 0);
     assert.equal(b.error_code, 0);
@@ -67,9 +79,9 @@ describe('spa()', () => {
 
   it('concurrent calls all succeed', async () => {
     const [c1, c2, c3] = await Promise.all([
-      spa(new Date(2023, 0, 1, 12, 0, 0), 40, -74, { timezone: -5 }),
-      spa(new Date(2023, 3, 1, 12, 0, 0), 40, -74, { timezone: -4 }),
-      spa(new Date(2023, 6, 1, 12, 0, 0), 40, -74, { timezone: -4 }),
+      spa(atOffset(2023, 0, 1, 12, 0, 0, -5), 40, -74, { timezone: -5 }),
+      spa(atOffset(2023, 3, 1, 12, 0, 0, -4), 40, -74, { timezone: -4 }),
+      spa(atOffset(2023, 6, 1, 12, 0, 0, -4), 40, -74, { timezone: -4 }),
     ]);
     assert.equal(c1.error_code, 0);
     assert.equal(c2.error_code, 0);
@@ -78,19 +90,19 @@ describe('spa()', () => {
   });
 
   it('boundary coordinates (poles and date line)', async () => {
-    const northPole = await spa(new Date(2025, 5, 21, 12, 0, 0), 90, 0, { timezone: 0 });
+    const northPole = await spa(atOffset(2025, 5, 21, 12, 0, 0, 0), 90, 0, { timezone: 0 });
     assert.equal(northPole.error_code, 0);
-    const southPole = await spa(new Date(2025, 5, 21, 12, 0, 0), -90, 0, { timezone: 0 });
+    const southPole = await spa(atOffset(2025, 5, 21, 12, 0, 0, 0), -90, 0, { timezone: 0 });
     assert.equal(southPole.error_code, 0);
-    const dateLine = await spa(new Date(2025, 5, 21, 12, 0, 0), 0, 180, { timezone: 12 });
+    const dateLine = await spa(atOffset(2025, 5, 21, 12, 0, 0, 12), 0, 180, { timezone: 12 });
     assert.equal(dateLine.error_code, 0);
-    const dateLineNeg = await spa(new Date(2025, 5, 21, 12, 0, 0), 0, -180, { timezone: -12 });
+    const dateLineNeg = await spa(atOffset(2025, 5, 21, 12, 0, 0, -12), 0, -180, { timezone: -12 });
     assert.equal(dateLineNeg.error_code, 0);
   });
 
   it('arctic polar day', async () => {
     const tromso = await spa(
-      new Date(2025, 5, 21, 12, 0, 0),
+      atOffset(2025, 5, 21, 12, 0, 0, 2),
       69.6496, 18.9560,
       { timezone: 2 },
     );
@@ -100,7 +112,7 @@ describe('spa()', () => {
 
   it('historical date (year 1000)', async () => {
     const historical = await spa(
-      new Date(1000, 5, 21, 12, 0, 0),
+      atOffset(1000, 5, 21, 12, 0, 0, -5),
       40.7128, -74.006,
       { timezone: -5, delta_t: 1574 },
     );
@@ -111,14 +123,14 @@ describe('spa()', () => {
 
 describe('function codes', () => {
   it('SPA_ZA computes zenith and azimuth', async () => {
-    const res = await spa(new Date(2023, 3, 1, 12, 0, 0), 40, -74, { timezone: -4, function: SPA_ZA });
+    const res = await spa(atOffset(2023, 3, 1, 12, 0, 0, -4), 40, -74, { timezone: -4, function: SPA_ZA });
     assert.ok(res.zenith > 0);
     assert.ok(res.azimuth > 0);
     assert.equal(res.error_code, 0);
   });
 
   it('all function codes succeed with consistent zenith', async () => {
-    const args = [new Date(2023, 3, 1, 12, 0, 0), 40, -74];
+    const args = [atOffset(2023, 3, 1, 12, 0, 0, -4), 40, -74];
     const opts = { timezone: -4 };
     const zaRes = await spa(...args, { ...opts, function: SPA_ZA });
     const zaIncRes = await spa(...args, { ...opts, function: SPA_ZA_INC });
@@ -135,7 +147,7 @@ describe('function codes', () => {
 describe('spaFormatted()', () => {
   it('returns formatted time strings', async () => {
     const fmt = await spaFormatted(
-      new Date(2023, 3, 1, 0, 0, 0),
+      atOffset(2023, 3, 1, 0, 0, 0, -4),
       40.7128, -74.006,
       { timezone: -4, elevation: 10, temperature: 20, pressure: 1013.25 },
     );
@@ -241,7 +253,7 @@ describe('option validation', () => {
   });
 
   it('accepts valid numeric options', async () => {
-    const result = await spa(new Date(2023, 3, 1, 12, 0, 0), 40, -74, {
+    const result = await spa(atOffset(2023, 3, 1, 12, 0, 0, -4), 40, -74, {
       timezone: -4,
       elevation: 100,
       pressure: 1000,
@@ -258,7 +270,7 @@ describe('option validation', () => {
 describe('init()', () => {
   it('explicit init is a no-op after module is loaded', async () => {
     await init();
-    const result = await spa(new Date(2023, 0, 1, 12, 0, 0), 40, -74, { timezone: -5 });
+    const result = await spa(atOffset(2023, 0, 1, 12, 0, 0, -5), 40, -74, { timezone: -5 });
     assert.equal(result.error_code, 0);
   });
 });
@@ -268,4 +280,38 @@ describe('constants', () => {
   it('SPA_ZA_INC is 1', () => assert.equal(SPA_ZA_INC, 1));
   it('SPA_ZA_RTS is 2', () => assert.equal(SPA_ZA_RTS, 2));
   it('SPA_ALL is 3', () => assert.equal(SPA_ALL, 3));
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// A Date is an instant, and the result must not depend on where the process runs.
+// Before 3.0.0 spa() read the HOST's local components, which was coherent only while
+// options.timezone happened to equal the host's own offset. This file's own docblock
+// example returned a solar zenith of 63.5 degrees in New York, 21.1 in UTC and 95.4 in
+// Tokyo — the last putting the sun below the horizon.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('host independence', () => {
+  it('an explicit timezone is honoured regardless of the host zone', async () => {
+    // Noon UTC at London, stated as an instant. There is exactly one right answer.
+    const r = await spa(new Date('2025-06-21T12:00:00Z'), 51.5074, -0.1278, { timezone: 0 });
+    assert.ok(r.zenith < 30, `London solar noon zenith should be under 30, got ${r.zenith}`);
+    assert.ok(r.azimuth > 170 && r.azimuth < 200, 'azimuth roughly south at noon');
+  });
+
+  it('the same instant gives the same answer whatever the host clock says', async () => {
+    // Two Date objects for one instant, built two different ways.
+    const viaIso = await spa(new Date('2025-06-21T16:00:00Z'), 40.7128, -74.006, { timezone: -4 });
+    const viaEpoch = await spa(new Date(Date.UTC(2025, 5, 21, 16)), 40.7128, -74.006, { timezone: -4 });
+    assert.strictEqual(viaIso.zenith, viaEpoch.zenith);
+    assert.strictEqual(viaIso.azimuth, viaEpoch.azimuth);
+  });
+
+  it('shifting the timezone shifts the local components, not the instant', async () => {
+    // One instant, two observers. Their wall clocks differ, so their local solar
+    // geometry differs — but sunrise/sunset for the same UTC day should track the
+    // offset rather than jumping arbitrarily.
+    const at = new Date('2025-06-21T12:00:00Z');
+    const a = await spa(at, 0, 0, { timezone: 0 });
+    const b = await spa(at, 0, 0, { timezone: 3 });
+    approx(b.sunrise - a.sunrise, 3, 0.001, 'sunrise shifts with the observer offset');
+  });
 });

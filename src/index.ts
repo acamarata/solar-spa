@@ -197,8 +197,10 @@ function validateOptions(opts: SpaOptions): void {
  * @throws {Error} If WASM memory allocation fails or SPA returns a non-zero error code
  * @example
  * import { spa } from 'solar-spa';
+ * // `date` is an INSTANT. The observer's wall clock is derived from it using
+ * // `options.timezone`, so the result is the same on every host.
  * const result = await spa(new Date('2025-06-21T12:00:00Z'), 40.7128, -74.006, { timezone: -4 });
- * console.log(result.zenith);   // ~27 degrees
+ * console.log(result.zenith);   // 63.5 degrees (08:00 local at UTC-4)
  * console.log(result.sunrise);  // ~5.4 fractional hours
  */
 export async function spa(
@@ -230,13 +232,30 @@ export async function spa(
   const opts = options ?? {};
   const tz = opts.timezone ?? -(date.getTimezoneOffset() / 60);
 
+  // Express the instant in the OBSERVER's frame, which is the frame `tz` describes.
+  //
+  // WHY not date.getFullYear()/getHours()/...: those read the HOST machine's frame. That is
+  // coherent only while `tz` happens to equal the host's own offset, which is exactly what
+  // the default gives you — and silently wrong the moment a caller passes an explicit
+  // `options.timezone` for somewhere else. The example in this file's own docblock,
+  // `spa(new Date('2025-06-21T12:00:00Z'), 40.7128, -74.006, { timezone: -4 })`, returned a
+  // solar zenith of 63.5 degrees in New York, 21.1 in UTC and 95.4 in Tokyo — the last of
+  // those putting the sun below the horizon. Same inputs, three different answers, decided
+  // by where the process happened to run.
+  //
+  // Shifting the UTC instant by `tz` and then reading UTC components yields the observer's
+  // wall-clock components paired with the observer's offset, which is the pairing the
+  // reference C implementation expects. When `tz` is the host's own offset this is
+  // arithmetically identical to the old local read, so the default path is unchanged.
+  const observerTime = new Date(date.getTime() + tz * 3_600_000);
+
   const ptr = _calculate!(
-    date.getFullYear(),
-    date.getMonth() + 1,
-    date.getDate(),
-    date.getHours(),
-    date.getMinutes(),
-    date.getSeconds(),
+    observerTime.getUTCFullYear(),
+    observerTime.getUTCMonth() + 1,
+    observerTime.getUTCDate(),
+    observerTime.getUTCHours(),
+    observerTime.getUTCMinutes(),
+    observerTime.getUTCSeconds(),
     tz,
     latitude,
     longitude,
@@ -313,10 +332,8 @@ export default spa;
 // ── Opt-in anonymous telemetry ────────────────────────────────────────────────
 // Off by default. Enable: ACAMARATA_TELEMETRY=1
 // What is sent + how to disable: https://github.com/acamarata/telemetry/blob/main/TELEMETRY.md
-import('@acamarata/telemetry')
-  .then(({ track }) =>
-    track('load', { package: 'solar-spa', version: '2.0.2' }),
-  )
+import("@acamarata/telemetry")
+  .then(({ track }) => track("load", { package: "solar-spa", version: "2.0.2" }))
   .catch(() => {
     // telemetry not installed or disabled — that is fine
   });
