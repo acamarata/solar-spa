@@ -4,6 +4,18 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { spa, spaFormatted, formatTime, init, SPA_ZA, SPA_ALL } = require('./dist/index.cjs');
 
+/**
+ * The instant at which the observer's wall clock reads the given components.
+ *
+ * `spa()` takes an INSTANT, not a wall-clock reading, and derives the observer's local
+ * components from it using `options.timezone`. Writing `new Date(2025, 5, 21, 12)` here
+ * would express noon on whichever machine runs the tests, which is only the intended noon
+ * when that machine happens to sit in the observer's zone. This helper says what was meant.
+ */
+function atOffset(year, monthIndex, day, hour, minute, second, tzHours) {
+  return new Date(Date.UTC(year, monthIndex, day, hour, minute, second) - tzHours * 3_600_000);
+}
+
 describe('CJS exports', () => {
   it('all exports are available', () => {
     assert.equal(typeof spa, 'function');
@@ -18,7 +30,7 @@ describe('CJS exports', () => {
 describe('CJS spa()', () => {
   it('core calculation succeeds', async () => {
     const result = await spa(
-      new Date(2023, 3, 1, 0, 0, 0),
+      atOffset(2023, 3, 1, 0, 0, 0, -4),
       40.7128, -74.006,
       { timezone: -4, elevation: 10 },
     );
@@ -32,7 +44,7 @@ describe('CJS spa()', () => {
 describe('CJS spaFormatted()', () => {
   it('returns formatted time strings', async () => {
     const fmt = await spaFormatted(
-      new Date(2023, 3, 1, 12, 0, 0),
+      atOffset(2023, 3, 1, 12, 0, 0, -4),
       40.7128, -74.006,
       { timezone: -4 },
     );
@@ -61,7 +73,7 @@ describe('CJS option validation', () => {
   });
 
   it('accepts valid numeric options', async () => {
-    const result = await spa(new Date(2023, 3, 1, 12, 0, 0), 40, -74, {
+    const result = await spa(atOffset(2023, 3, 1, 12, 0, 0, -4), 40, -74, {
       timezone: -4,
       elevation: 100,
       pressure: 1000,
